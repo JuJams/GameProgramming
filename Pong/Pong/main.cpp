@@ -49,10 +49,19 @@ int PlayerOneScore = 0;
 int PlayerTwoScore = 0;
 bool SinglePlayer = false;
 bool end = false;
+int ball_count = 1;
 
 
 
 void handle_input(const Uint8* keys) {
+    if (keys[SDL_SCANCODE_1]) {
+        ball_count = 1;
+    } else if (keys[SDL_SCANCODE_2]) {
+        ball_count = 2;
+    } else if (keys[SDL_SCANCODE_3]) {
+        ball_count = 3;
+    }
+
     if (!SinglePlayer) {
         racket1_y = (keys[SDL_SCANCODE_W] && racket1_y > 0) ?
                     racket1_y - RACKET_SPEED * 10 :
@@ -72,6 +81,7 @@ void handle_input(const Uint8* keys) {
         racket1_y = SinglePlayer ? (WINDOW_HEIGHT / 2) - (RACKET_HEIGHT / 2) : racket1_y;
     }
 }
+
 void move_ball() {
     ball_x += ball_dx * 10;
     ball_y += ball_dy * 10;
@@ -109,11 +119,18 @@ void render(SDL_Renderer* renderer) {
     if (!end) {
         SDL_Rect paddle1 = {10, static_cast<int>(racket1_y), RACKET_WIDTH, RACKET_HEIGHT};
         SDL_Rect paddle2 = {WINDOW_WIDTH - 60, static_cast<int>(racket2_y), RACKET_WIDTH, RACKET_HEIGHT};
-        SDL_Rect ball = {static_cast<int>(ball_x), static_cast<int>(ball_y), BALL_SIZE, BALL_SIZE};
-
         SDL_RenderCopy(renderer, racket1_texture, nullptr, &paddle1);
         SDL_RenderCopy(renderer, racket2_texture, nullptr, &paddle2);
+
+      
+        SDL_Rect ball = {static_cast<int>(ball_x), static_cast<int>(ball_y), BALL_SIZE, BALL_SIZE};
         SDL_RenderCopy(renderer, ball_texture, nullptr, &ball);
+
+     
+        for (int i = 1; i < ball_count; ++i) {
+            SDL_Rect extra_ball = {static_cast<int>(ball_x + i * 30), static_cast<int>(ball_y + i * 30), BALL_SIZE, BALL_SIZE};
+            SDL_RenderCopy(renderer, ball_texture, nullptr, &extra_ball);
+        }
     } else {
         SDL_Rect result_rect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
         SDL_Texture* result_texture = (PlayerOneScore > PlayerTwoScore) ? p1win_texture : p2win_texture;
@@ -125,15 +142,16 @@ void render(SDL_Renderer* renderer) {
 
 
 
+
 void shutdown() { SDL_Quit(); }
 
 void load_textures(SDL_Renderer* renderer) {
-    racket1_texture = IMG_LoadTexture(renderer, "/Users/anuraghav/Desktop/sahil/racket1.png");
-    racket2_texture = IMG_LoadTexture(renderer, "/Users/anuraghav/Desktop/sahil/racket2.png");
-    ball_texture = IMG_LoadTexture(renderer, "/Users/anuraghav/Desktop/sahil/ball.png");
-    background_texture = IMG_LoadTexture(renderer, "/Users/anuraghav/Desktop/sahil/tennis_court.png");
-    p1win_texture = IMG_LoadTexture(renderer, "/Users/anuraghav/Desktop/sahil/result1.png");
-    p2win_texture = IMG_LoadTexture(renderer, "/Users/anuraghav/Desktop/sahil/result2.png");
+    racket1_texture = IMG_LoadTexture(renderer, "racket1.png");
+    racket2_texture = IMG_LoadTexture(renderer, "racket2.png");
+    ball_texture = IMG_LoadTexture(renderer, "ball.png");
+    background_texture = IMG_LoadTexture(renderer, "tennis_court.png");
+    p1win_texture = IMG_LoadTexture(renderer, "result1.png");
+    p2win_texture = IMG_LoadTexture(renderer, "result2.png");
 
     if (!racket1_texture || !racket2_texture || !ball_texture || !background_texture ||
         !p1win_texture || !p2win_texture) {
