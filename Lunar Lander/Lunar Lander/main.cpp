@@ -22,6 +22,7 @@
     #include "glm/gtc/matrix_transform.hpp"
     #include "ShaderProgram.h"
     #include "stb_image.h"
+    
     #include "cmath"
     #include <ctime>
 
@@ -37,7 +38,14 @@
     GLuint g_mission_accomplished_texture_id;
     bool mission_success = false;
 
+    constexpr int MAX_WING_STRENGTH = 120;
+    constexpr float UPWARD_ACCELERATION = 0.6f;
+    int wing_strength = MAX_WING_STRENGTH;
 
+    GLuint g_wing_strength_full_texture_id;
+    GLuint g_wing_strength_medium_texture_id;
+    GLuint g_wing_strength_low_texture_id;
+    GLuint g_wing_strength_empty_texture_id;
 
     glm::vec3 m_acceleration = glm::vec3(0.0f, GRAVITY, 0.0f);
 
@@ -73,8 +81,6 @@
 
     GLuint g_desert_texture_id;
     glm::mat4 g_cactus_matrix;
-
-
 
     constexpr float MINIMUM_COLLISION_DISTANCE = 1.0f;
     constexpr glm::vec3 INIT_POS_DROPS    = glm::vec3(0.0f, 3.0f, 0.0f);
@@ -155,8 +161,7 @@
     }
 
 
-    void initialise()
-    {
+    void initialise() {
         SDL_Init(SDL_INIT_VIDEO);
         g_display_window = SDL_CreateWindow("User-Input and Collisions Exercise",
                                             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -174,42 +179,49 @@
 
         glViewport(VIEWPORT_X, VIEWPORT_Y, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
         g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH);
+
         g_beaker_matrix = glm::mat4(1.0f);
         g_drops_matrix = glm::mat4(1.0f);
         g_drops_matrix = glm::translate(g_drops_matrix, glm::vec3(1.0f, 1.0f, 0.0f));
         g_drops_position += g_drops_movement;
         g_view_matrix = glm::mat4(1.0f);
         g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
+
         g_shader_program.set_projection_matrix(g_projection_matrix);
         g_shader_program.set_view_matrix(g_view_matrix);
+
         glUseProgram(g_shader_program.get_program_id());
         glClearColor(BG_RED, BG_GREEN, BG_BLUE, BG_OPACITY);
+
         g_beaker_texture_id = load_texture(BEAKER_SPRITE_FILEPATH);
         g_drops_texture_id = load_texture(DROPS_SPRITE_FILEPATH);
         g_desert_texture_id = load_texture(DESERT_SPRITE_FILEPATH);
         g_cloud_texture_id = load_texture(CLOUD_SPRITE_FILEPATH);
         g_mission_failed_texture_id = load_texture("fail.png");
         g_mission_accomplished_texture_id = load_texture("success.png");
+
+        g_wing_strength_full_texture_id = load_texture("wing_full.png");
+        g_wing_strength_medium_texture_id = load_texture("wing_medium.png");
+        g_wing_strength_low_texture_id = load_texture("wing_low.png");
+        g_wing_strength_empty_texture_id = load_texture("wing_empty.png");
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
 
-    void process_input()
-    {
+    void process_input() {
         m_acceleration.x = 0.0f;
         SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            switch (event.type)
-            {
+
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
                 case SDL_QUIT:
                 case SDL_WINDOWEVENT_CLOSE:
                     g_app_status = TERMINATED;
                     break;
                 case SDL_KEYDOWN:
-                    switch (event.key.keysym.sym)
-                    {
+                    switch (event.key.keysym.sym) {
                         case SDLK_q:
                             g_app_status = TERMINATED;
                             break;
@@ -222,16 +234,19 @@
         }
 
         const Uint8 *key_state = SDL_GetKeyboardState(NULL);
-        
-  
-        if (key_state[SDL_SCANCODE_A]) {
-            m_acceleration.x = -HORIZONTAL_ACCELERATION;
-        }
-        else if (key_state[SDL_SCANCODE_D]) {
-            m_acceleration.x = HORIZONTAL_ACCELERATION;
-        }
-    }
 
+        if (key_state[SDL_SCANCODE_A] && wing_strength > 0) {
+            m_acceleration.x = -HORIZONTAL_ACCELERATION;
+            wing_strength--;
+            LOG("Wing strength used, remaining: " << wing_strength);
+        } else if (key_state[SDL_SCANCODE_D] && wing_strength > 0) {
+            m_acceleration.x = HORIZONTAL_ACCELERATION;
+            wing_strength--;
+            LOG("Wing strength used, remaining: " << wing_strength);
+        }
+
+        m_acceleration.y = GRAVITY;
+    }
 
     void update()
     {
@@ -325,15 +340,30 @@
                 draw_object(cloud_matrix, g_cloud_texture_id);
             }
 
+
             draw_object(g_drops_matrix, g_drops_texture_id);
+
+            GLuint wing_texture_id;
+            if (wing_strength > 2) {
+                wing_texture_id = g_wing_strength_full_texture_id;
+            } else if (wing_strength > 1) {
+                wing_texture_id = g_wing_strength_medium_texture_id;
+            } else if (wing_strength > 0) {
+                wing_texture_id = g_wing_strength_low_texture_id;
+            } else {
+                wing_texture_id = g_wing_strength_empty_texture_id;
+            }
+            glm::mat4 wing_strength_matrix = glm::mat4(1.0f);
+            wing_strength_matrix = glm::translate(wing_strength_matrix, glm::vec3(4.0f, 3.0f, 0.0f));
+            wing_strength_matrix = glm::scale(wing_strength_matrix, glm::vec3(1.5f, 1.5f, 1.0f));
+            draw_object(wing_strength_matrix, wing_texture_id);
         }
-
-
         glDisableVertexAttribArray(g_shader_program.get_position_attribute());
         glDisableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
 
         SDL_GL_SwapWindow(g_display_window);
     }
+
 
     void shutdown() { SDL_Quit(); }
 
