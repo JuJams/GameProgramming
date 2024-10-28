@@ -1,7 +1,7 @@
 /**
 * Author: Sanjana Chowdary
 * Assignment: Lunar Lander
-* Date due: 2024-10-15, 11:59pm
+* Date due: 2024-10-26, 11:59pm
 * I pledge that I have completed this assignment without
 * collaborating with anyone else, in conformance with the
 * NYU School of Engineering Policies and Procedures on
@@ -31,41 +31,33 @@
     constexpr float GRAVITY = -0.2f;
     constexpr float HORIZONTAL_ACCELERATION = 0.5f;
     constexpr float FRICTION = 1.0f;
-    
     constexpr float DISPLAY_DELAY_SECONDS = 2.0f;
     float end_time = 0.0f;
-
     GLuint g_mission_failed_texture_id;
     GLuint g_mission_accomplished_texture_id;
     bool mission_success = false;
 
-    
+
+
     glm::vec3 m_acceleration = glm::vec3(0.0f, GRAVITY, 0.0f);
 
     constexpr float WINDOW_SIZE_MULT = 1.0f;
-
     constexpr int WINDOW_WIDTH  = 640 * WINDOW_SIZE_MULT,
                   WINDOW_HEIGHT = 480 * WINDOW_SIZE_MULT;
-
     constexpr float BG_RED     = 1.0f,
                     BG_GREEN   = 1.0f,
                     BG_BLUE    = 1.0f,
                     BG_OPACITY = 1.0f;
-
     constexpr int VIEWPORT_X = 0,
               VIEWPORT_Y = 0,
               VIEWPORT_WIDTH  = WINDOW_WIDTH,
               VIEWPORT_HEIGHT = WINDOW_HEIGHT;
-
     constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
                F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
-
     constexpr GLint NUMBER_OF_TEXTURES = 1;
     constexpr GLint LEVEL_OF_DETAIL    = 0;
     constexpr GLint TEXTURE_BORDER     = 0;
-
     constexpr float MILLISECONDS_IN_SECOND = 1000.0;
-
     constexpr char BEAKER_SPRITE_FILEPATH[] = "cactus.png";
     constexpr char DROPS_SPRITE_FILEPATH[]  = "dino.png";
     constexpr char DESERT_SPRITE_FILEPATH[] = "desert.png";
@@ -181,37 +173,23 @@
     #endif
 
         glViewport(VIEWPORT_X, VIEWPORT_Y, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
-
         g_shader_program.load(V_SHADER_PATH, F_SHADER_PATH);
-
-        
         g_beaker_matrix = glm::mat4(1.0f);
         g_drops_matrix = glm::mat4(1.0f);
         g_drops_matrix = glm::translate(g_drops_matrix, glm::vec3(1.0f, 1.0f, 0.0f));
         g_drops_position += g_drops_movement;
-
         g_view_matrix = glm::mat4(1.0f);
         g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
-
         g_shader_program.set_projection_matrix(g_projection_matrix);
         g_shader_program.set_view_matrix(g_view_matrix);
-
         glUseProgram(g_shader_program.get_program_id());
-
-    
         glClearColor(BG_RED, BG_GREEN, BG_BLUE, BG_OPACITY);
-
-      
         g_beaker_texture_id = load_texture(BEAKER_SPRITE_FILEPATH);
         g_drops_texture_id = load_texture(DROPS_SPRITE_FILEPATH);
         g_desert_texture_id = load_texture(DESERT_SPRITE_FILEPATH);
         g_cloud_texture_id = load_texture(CLOUD_SPRITE_FILEPATH);
-
-      
         g_mission_failed_texture_id = load_texture("fail.png");
         g_mission_accomplished_texture_id = load_texture("success.png");
-
-
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -219,39 +197,32 @@
 
     void process_input()
     {
-   
         m_acceleration.x = 0.0f;
-
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
             {
-            
                 case SDL_QUIT:
                 case SDL_WINDOWEVENT_CLOSE:
                     g_app_status = TERMINATED;
                     break;
-
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym)
                     {
                         case SDLK_q:
                             g_app_status = TERMINATED;
                             break;
-
-                    
                         default:
                             break;
                     }
-
                 default:
                     break;
             }
         }
 
         const Uint8 *key_state = SDL_GetKeyboardState(NULL);
-
+        
   
         if (key_state[SDL_SCANCODE_A]) {
             m_acceleration.x = -HORIZONTAL_ACCELERATION;
@@ -268,19 +239,10 @@
         float ticks = (float) SDL_GetTicks() / MILLISECONDS_IN_SECOND;
         float delta_time = ticks - g_previous_ticks;
         g_previous_ticks = ticks;
-
-    
         m_acceleration.y = GRAVITY;
-
-     
         g_drops_movement += m_acceleration * delta_time;
-
-    
         g_drops_movement.x *= FRICTION;
-
         g_drops_position += g_drops_movement * delta_time;
-
-   
         g_drops_matrix = glm::mat4(1.0f);
         g_drops_matrix = glm::translate(g_drops_matrix, INIT_POS_DROPS + g_drops_position);
 
@@ -288,7 +250,6 @@
         for (const auto& cloud_position : cloud_positions) {
             float x_distance = fabs(g_drops_position.x - cloud_position.x);
             float y_distance = fabs(g_drops_position.y - cloud_position.y);
-
             if (x_distance < 1.0f && y_distance < 1.0f) {
                 mission_failed();
                 return;
@@ -299,7 +260,6 @@
         for (const auto& cactus_position : cactus_positions) {
             float x_distance = fabs(g_drops_position.x - cactus_position.x);
             float y_distance = fabs(g_drops_position.y - cactus_position.y);
-
             if (g_drops_position.y <= -3.0f && x_distance < 0.5f && y_distance < 0.1f) {
                 mission_failed();
                 return;
@@ -311,13 +271,6 @@
             mission_accomplished();
         }
     }
-
-
-
-
-
-
-
 
     void draw_object(glm::mat4 &object_model_matrix, GLuint &object_texture_id)
     {
@@ -348,9 +301,9 @@
         if (g_app_status == DISPLAY_MESSAGE) {
             glm::mat4 message_matrix = glm::mat4(1.0f);
             message_matrix = glm::scale(message_matrix, glm::vec3(10.0f, 7.5f, 1.0f));
-
             GLuint message_texture_id = (mission_success) ? g_mission_accomplished_texture_id : g_mission_failed_texture_id;
             draw_object(message_matrix, message_texture_id);
+            
         } else if (g_app_status == RUNNING) {
             
             glm::mat4 desert_matrix = glm::mat4(1.0f);
@@ -375,18 +328,12 @@
             draw_object(g_drops_matrix, g_drops_texture_id);
         }
 
+
         glDisableVertexAttribArray(g_shader_program.get_position_attribute());
         glDisableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
 
         SDL_GL_SwapWindow(g_display_window);
     }
-
-
-
-
-
-
-
 
     void shutdown() { SDL_Quit(); }
 
@@ -410,7 +357,6 @@
                 }
             }
         }
-
         shutdown();
         return 0;
     }
