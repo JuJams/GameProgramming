@@ -247,7 +247,6 @@
 
         m_acceleration.y = GRAVITY;
     }
-
     void update()
     {
         
