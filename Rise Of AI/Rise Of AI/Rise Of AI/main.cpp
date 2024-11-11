@@ -61,7 +61,7 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/micheal.png",
 constexpr char BACKGROUND_FILEPATH[] = "assets/forest-background.png";
 GLuint g_background_texture_id;
 
-constexpr char BGM_FILEPATH[] = "assets/crypto.mp3",
+constexpr char BGM_FILEPATH[] = "assets/bgm.mp3",
            SFX_FILEPATH[] = "assets/bounce.wav";
 
 constexpr int NUMBER_OF_TEXTURES = 1;
