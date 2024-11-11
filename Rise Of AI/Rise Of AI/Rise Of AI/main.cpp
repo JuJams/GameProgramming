@@ -32,7 +32,7 @@ struct GameState
     Mix_Music *bgm;
     Mix_Chunk *jump_sfx;
 };
-
+GLuint g_font_texture_id;
 enum AppStatus { RUNNING, TERMINATED };
 
 // ––––– CONSTANTS ––––– //
@@ -176,7 +176,7 @@ void initialise()
     }
     
     
-
+    g_font_texture_id = load_texture("assets/font1.png");
     //GEORGE//
     GLuint player_texture_id = load_texture(SPRITESHEET_FILEPATH);
 
@@ -302,7 +302,51 @@ void process_input()
  
  
 }
+void render_text(ShaderProgram* program, std::string text, float x, float y, float size) {
+    float texture_size = 1.0f / 16.0f;
 
+    std::vector<float> vertices;
+    std::vector<float> tex_coords;
+
+    for (size_t i = 0; i < text.size(); i++) {
+        int character = (int)text[i];
+        float offset = (size + 0.01f) * i;
+
+        float u = (float)(character % 16) / 16.0f;
+        float v = (float)(character / 16) / 16.0f;
+
+        vertices.insert(vertices.end(), {
+            x + offset, y,
+            x + offset + size, y,
+            x + offset + size, y + size,
+            x + offset, y,
+            x + offset + size, y + size,
+            x + offset, y + size,
+        });
+
+        tex_coords.insert(tex_coords.end(), {
+            u, v + texture_size,
+            u + texture_size, v + texture_size,
+            u + texture_size, v,
+            u, v + texture_size,
+            u + texture_size, v,
+            u, v,
+        });
+    }
+
+    glBindTexture(GL_TEXTURE_2D, g_font_texture_id);
+
+    glVertexAttribPointer(program->get_position_attribute(), 2, GL_FLOAT, false, 0, vertices.data());
+    glEnableVertexAttribArray(program->get_position_attribute());
+
+    glVertexAttribPointer(program->get_tex_coordinate_attribute(), 2, GL_FLOAT, false, 0, tex_coords.data());
+    glEnableVertexAttribArray(program->get_tex_coordinate_attribute());
+
+    glDrawArrays(GL_TRIANGLES, 0, (int)(text.size() * 6));
+
+    glDisableVertexAttribArray(program->get_position_attribute());
+    glDisableVertexAttribArray(program->get_tex_coordinate_attribute());
+}
 void update() {
     float ticks = (float)SDL_GetTicks() / MILLISECONDS_IN_SECOND;
     float delta_time = ticks - g_previous_ticks;
@@ -348,7 +392,7 @@ void update() {
                 if (y_distance > x_distance) {
                   
                     LOG("Player hit from top or bottom. Game over.");
-                    g_app_status = TERMINATED;
+                    g_game_state.player->deactivate();
                 } else {
                   
                     LOG("Enemy hit from the side. Enemy dies.");
@@ -368,7 +412,7 @@ void update() {
 void render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
-   
+ 
     g_shader_program.set_model_matrix(glm::mat4(1.0f));
     glBindTexture(GL_TEXTURE_2D, g_background_texture_id);
 
@@ -385,22 +429,33 @@ void render() {
 
     glDisableVertexAttribArray(g_shader_program.get_position_attribute());
     glDisableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
-    
+
+   
     g_game_state.player->render(&g_shader_program);
 
     for (int i = 0; i < PLATFORM_COUNT; i++) {
         g_game_state.platforms[i].render(&g_shader_program);
     }
 
+ 
+    bool all_enemies_inactive = true;
     for (int i = 0; i < ENEMY_COUNT; i++) {
         if (g_game_state.enemies[i].get_active()) {
             g_game_state.enemies[i].render(&g_shader_program);
+            all_enemies_inactive = false;
         }
+    }
+
+    if (!g_game_state.player->get_active()) {
+       
+        render_text(&g_shader_program, "You Lose", -5.0f, 0.0f, 0.5f);
+    } else if (all_enemies_inactive) {
+ 
+        render_text(&g_shader_program, "You Win", -5.0f, 0.0f, 0.5f);
     }
 
     SDL_GL_SwapWindow(g_display_window);
 }
-
 
 void shutdown()
 {
