@@ -21,6 +21,7 @@ struct GameState {
     Entity* keys;
     std::string keysCollected;
     std::string requiredKeys;
+    
 };
 class Scene {
 public:

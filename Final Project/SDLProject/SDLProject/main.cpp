@@ -1,12 +1,16 @@
 /**
 * Author: Sanjana Kanderi Chowdary
 * Assignment: Final Project
-* Date due: 2024-12-02, 11:59pm
+* Date due: 2024-12-11, 11:59pm
 * I pledge that I have completed this assignment without
 * collaborating with anyone else, in conformance with the
 * NYU School of Engineering Policies and Procedures on
 * Academic Misconduct.
 **/
+
+// Rythm Game
+// No shaders
+
 #define GL_SILENCE_DEPRECATION
 
 #ifdef _WINDOWS
@@ -63,7 +67,7 @@ void SwitchToScene(Scene *scene) {
 
 void Initialize() {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    displayWindow = SDL_CreateWindow("Platformer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL);
+    displayWindow = SDL_CreateWindow("Learn the Chords", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 800, SDL_WINDOW_OPENGL);
     SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
     SDL_GL_MakeCurrent(displayWindow, context);
     
@@ -71,7 +75,7 @@ void Initialize() {
     glewInit();
 #endif
     
-    glViewport(0, 0, 640, 480);
+    glViewport(0, 0, 800, 800);
     
     program.Load("shaders/vertex_textured.glsl", "shaders/fragment_textured.glsl");
     
@@ -210,7 +214,7 @@ void Shutdown() {
 int main(int argc, char* argv[]) {
     Initialize();
     
-    while (gameIsRunning) {
+    while (gameIsRunning) { 
         ProcessInput();
         Update();
         

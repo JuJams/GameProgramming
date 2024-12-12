@@ -1,27 +1,27 @@
 #include "Level3.h"
-#define LEVEL3_WIDTH 14
+#define LEVEL3_WIDTH 30
 #define LEVEL3_HEIGHT 8
 
-#define LEVEL3_ENEMY_COUNT 1
+#define LEVEL3_ENEMY_COUNT 3
 
 using namespace std;
 
 unsigned int Level3_data[] =
 {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0 ,0 ,0, 0, 0, 0, 0, 0, 0, 0, 0 ,1 ,0,
 
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 1, 0, 2, 2, 1, 0, 0, 0,
-    0, 0, 0, 0, 1, 0, 0, 0, 0, 3, 2, 1, 1, 1,
-    1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2,
-    2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 ,0 ,0, 0, 0, 0, 0, 0, 1, 0, 0 ,0 ,1,
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0, 0, 0, 0, 0, 0, 0, 0, 1 ,0 ,0,
+    0, 0, 0, 0, 0, 0, 1, 0, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0 ,0 ,0, 0, 0, 0, 0, 0, 1, 1, 0 ,0 ,0,
+    0, 0, 0, 0, 1, 0, 0, 0, 0, 3, 2, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0 ,0 ,0,
+    1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0,
+    2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0 ,0 ,0
 };
 
 
 std::string actualNotes3 = "";
-Mix_Chunk* keySounds3[5];
+Mix_Chunk* keySounds3[6];
 
 void Level3::Initialize(int numLives) {
     state.nextScene = -1;
@@ -67,6 +67,24 @@ void Level3::Initialize(int numLives) {
     state.enemies[0].aiState = IDLE;
     state.enemies[0].jumpPower = 5.0f;
     state.enemies[0].acceleration = glm::vec3(0, -9.81, 0);
+    
+    state.enemies[1].entityType = ENEMY;
+    state.enemies[1].textureID = enemyTextureID;
+    state.enemies[1].position = glm::vec3(19, -3, 0);
+    state.enemies[1].speed = 1;
+    state.enemies[1].aiType = WAITANDGO;
+    state.enemies[1].aiState = IDLE;
+    state.enemies[1].jumpPower = 5.0f;
+    state.enemies[1].acceleration = glm::vec3(0, -9.81, 0);
+    
+    state.enemies[2].entityType = ENEMY;
+    state.enemies[2].textureID = enemyTextureID;
+    state.enemies[2].position = glm::vec3(4, -4, 0);
+    state.enemies[2].speed = 1;
+    state.enemies[2].aiType = WAITANDGO;
+    state.enemies[2].aiState = IDLE;
+    state.enemies[2].jumpPower = 5.0f;
+    state.enemies[2].acceleration = glm::vec3(0, -9.81, 0);
 
     for (int i = 0; i < LEVEL3_ENEMY_COUNT; ++i) {
         state.enemies[i].isActive = true;
@@ -90,15 +108,15 @@ void Level3::Initialize(int numLives) {
 
     state.keys[2].entityType = KEY; // D
     state.keys[2].textureID = keyTextureID;
-    state.keys[2].position = glm::vec3(9, 0, 0);
+    state.keys[2].position = glm::vec3(16, -6, 0);
 
     state.keys[3].entityType = KEY; // A
     state.keys[3].textureID = keyTextureID;
-    state.keys[3].position = glm::vec3(12, -3, 0);
+    state.keys[3].position = glm::vec3(30, -1, 0);
 
     state.keys[4].entityType = KEY; // E
     state.keys[4].textureID = keyTextureID;
-    state.keys[4].position = glm::vec3(10, -4, 0);
+    state.keys[4].position = glm::vec3(12, -4, 0);
 
     for (int i = 0; i < 5; ++i) {
         state.keys[i].isActive = true;
@@ -110,6 +128,7 @@ void Level3::Initialize(int numLives) {
     keySounds3[2] = Mix_LoadWAV("key_D.wav");
     keySounds3[3] = Mix_LoadWAV("key_a2.wav");
     keySounds3[4] = Mix_LoadWAV("key_E.wav");
+    keySounds3[5] = Mix_LoadWAV("final.wav");
 
     for (int i = 0; i < 5; ++i) {
         if (keySounds3[i] == nullptr) {
@@ -125,6 +144,22 @@ void Level3::Update(float deltaTime) {
     for (int i = 0; i < LEVEL3_ENEMY_COUNT; ++i) {
         state.enemies[i].Update(deltaTime, state.player, state.enemies, LEVEL3_ENEMY_COUNT, state.map);
     }
+    bool anyAlive = false;
+    for (int i = 0; i < LEVEL3_ENEMY_COUNT; ++i) {
+        if (state.enemies[i].isActive == true) {
+            anyAlive = true;
+            break;
+        }
+    }
+    if (state.player->position.y <= -10 || state.player->isActive == false) {
+        state.player->isActive = true;
+        state.player->numLives -= 1;
+        state.player->position = glm::vec3(1, 0, 0);
+        
+        if (state.player->numLives <= 0) {
+                    state.nextScene = 4;  // Transition to Scene 4
+                }
+    }
 
     for (int i = 0; i < 5; ++i) {
         state.keys[i].modelMatrix = glm::mat4(1.0f);
@@ -134,13 +169,26 @@ void Level3::Update(float deltaTime) {
             if ((expectedIndex == 0 && i == 0) || // C
                 (expectedIndex == 1 && i == 1) || // G
                 (expectedIndex == 2 && i == 2) || // D
-                (expectedIndex == 3 && i == 3) || // A
-                (expectedIndex == 4 && i == 4)) { // E
+                (expectedIndex == 3 && i == 3) ) { // E
 
                 Mix_PlayChannel(-1, keySounds3[i], 0);
                 state.keysCollected += std::to_string(i);
                 state.keys[i].isActive = false;
-            } else {
+            }
+            else if((expectedIndex == 4 && i == 4)){
+                Mix_PlayChannel(-1, keySounds3[i], 0);
+                SDL_Delay(500);
+                Mix_PlayChannel(-1, keySounds3[0], 0);
+                Mix_PlayChannel(-1, keySounds3[1], 0);
+                Mix_PlayChannel(-1, keySounds3[2], 0);
+                Mix_PlayChannel(-1, keySounds3[3], 0);
+                Mix_PlayChannel(-1, keySounds3[4], 0);
+                SDL_Delay(500);
+                Mix_PlayChannel(-1, keySounds3[5], 0);
+                
+                state.keysCollected += std::to_string(i);
+                state.keys[i].isActive = false;
+            }else {
             
                 state.player->numLives -= 1;
                 state.player->position = glm::vec3(1, -2, 0);
@@ -201,6 +249,6 @@ void Level3::Render(ShaderProgram *program) {
         else if (i == 4) keyName = "E";
 
         Util::DrawText(program, Util::LoadTexture("font1.png"), keyName, 0.3f, -0.05f,
-                       glm::vec3(state.keys[i].position.x - 0.3f, state.keys[i].position.y + 0.5f, 0));
+                       glm::vec3(state.keys[i].position.x - 0.6f, state.keys[i].position.y + 0.5f, 0));
     }
 }

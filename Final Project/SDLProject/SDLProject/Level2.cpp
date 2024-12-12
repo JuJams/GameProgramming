@@ -1,5 +1,5 @@
 #include "Level2.h"
-#define LEVEL2_WIDTH 14
+#define LEVEL2_WIDTH 30
 #define LEVEL2_HEIGHT 8
 
 #define LEVEL2_ENEMY_COUNT 1
@@ -8,14 +8,14 @@ using namespace std;
 
 unsigned int level2_data[] =
 {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 0, 2, 2, 0, 0, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 0, 3, 2, 0, 0, 3, 3, 3, 3, 3
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 1, 2, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+    1, 1, 1, 1, 0, 2, 2, 0, 0, 2, 2, 2, 2, 2, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+    2, 2, 2, 2, 0, 3, 2, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0 ,0, 2, 2, 0, 0, 0, 0, 0, 0, 0
 };
 
 std::string actualNotes2 = "";
@@ -79,15 +79,15 @@ void Level2::Initialize(int numLives) {
 
     state.keys[0].entityType = KEY; // B♭ (b)
     state.keys[0].textureID = keyTextureID;
-    state.keys[0].position = glm::vec3(2, -1, 0);
+    state.keys[0].position = glm::vec3(1, -1, 0);
 
     state.keys[1].entityType = KEY; // D
     state.keys[1].textureID = keyTextureID;
-    state.keys[1].position = glm::vec3(6, -2, 0);
+    state.keys[1].position = glm::vec3(4, -1, 0);
 
     state.keys[2].entityType = KEY; // F
     state.keys[2].textureID = keyTextureID;
-    state.keys[2].position = glm::vec3(9, 0, 0);
+    state.keys[2].position = glm::vec3(24, -2, 0);
 
     state.keys[3].entityType = KEY; // A♭ (a)
     state.keys[3].textureID = keyTextureID;
@@ -137,13 +137,23 @@ void Level2::Update(float deltaTime) {
             __SIZE_TYPE__ expectedIndex = state.keysCollected.length();
             if ((expectedIndex == 0 && i == 0) ||
                 (expectedIndex == 1 && i == 1) ||
-                (expectedIndex == 2 && i == 2) ||
-                (expectedIndex == 3 && i == 3)) {
+                (expectedIndex == 2 && i == 2)){
                 
                 Mix_PlayChannel(-1, keySounds2[i], 0);
                 state.keysCollected += std::to_string(i);
                 state.keys[i].isActive = false;
-            } else {
+            }
+            else if((expectedIndex == 3 && i == 3)){
+                Mix_PlayChannel(-1, keySounds2[i], 0);
+                SDL_Delay(500);
+                
+                Mix_PlayChannel(-1, keySounds2[0], 0);
+                Mix_PlayChannel(-1, keySounds2[1], 0);
+                Mix_PlayChannel(-1, keySounds2[2], 0);
+                Mix_PlayChannel(-1, keySounds2[3], 0);
+                state.keysCollected += std::to_string(i);
+                state.keys[i].isActive = false;
+            }else {
     
                 state.player->numLives -= 1;
                 state.player->position = glm::vec3(1, -2, 0);

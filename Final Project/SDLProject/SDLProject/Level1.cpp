@@ -18,6 +18,7 @@ unsigned int level1_data[] =
     2, 2, 2, 2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 2
 };
 
+
 std::string actualNotes = "";
 Mix_Chunk* keySounds[3];
 
@@ -118,6 +119,7 @@ void Level1::Initialize(int numLives) {
             std::cout << "Failed to load key sound " << i << ": " << Mix_GetError() << std::endl;
         }
     }
+    
 
 
 }
@@ -140,6 +142,7 @@ void Level1::Update(float deltaTime) {
         state.player->isActive = true;
         state.player->numLives -= 1;
         state.player->position = glm::vec3(1, 0, 0);
+    
     }
     
     
@@ -151,15 +154,25 @@ void Level1::Update(float deltaTime) {
                     
                 __SIZE_TYPE__ expectedIndex = state.keysCollected.length();
                     if ((expectedIndex == 0 && i == 1) ||
-                        (expectedIndex == 1 && i == 0) ||
-                        (expectedIndex == 2 && i == 2)) {
+                        (expectedIndex == 1 && i == 0)){
                         
                         
                         Mix_PlayChannel(-1, keySounds[i], 0);
 
                         state.keysCollected += std::to_string(i);
                         state.keys[i].isActive = false;
-                    } else {
+                    }
+                else if(expectedIndex == 2 && (i == 2) ){
+                    Mix_PlayChannel(-1, keySounds[i], 0);
+                    
+                    SDL_Delay(500);
+                    Mix_PlayChannel(-1, keySounds[0], 0);
+                    Mix_PlayChannel(-1, keySounds[1], 0);
+                    Mix_PlayChannel(-1, keySounds[2], 0);
+                    state.keysCollected += std::to_string(i);
+                    state.keys[i].isActive = false;
+                }
+                    else {
                         
                         state.player->numLives -= 1;
                         state.player->position = glm::vec3(1, -2, 0);
@@ -205,6 +218,7 @@ void Level1::Render(ShaderProgram *program) {
 
     state.map->Render(program);
     state.player->Render(program);
+    
     for (int i = 0; i < LEVEL1_ENEMY_COUNT; ++i) {
         state.enemies[i].Render(program);
     }
